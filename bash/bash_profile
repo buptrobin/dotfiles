@@ -1,0 +1,103 @@
+
+mktar(){ tar cvf  "${1%%/}.tar"     "${1%%/}/"; }
+mktgz(){ tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
+mktbz(){ tar cvjf "${1%%/}.tar.bz2" "${1%%/}/"; }
+
+# View most commonly used commands. depends on your history output format
+function used {
+if [[ $1 ]]
+then
+    history | awk '{print $4}' | sort | uniq -c | sort -nr | head -n $1
+else
+    history | awk '{print $4}' | sort | uniq -c | sort -nr | head -n 10
+fi
+}
+
+alias grepall="grep -rnE --color"
+alias mkdir="mkdir -pv"
+alias cp='cp -v'
+alias cpr='cp -r'
+alias mv='mv -v'
+alias chmod='chmod -v --preserve-root'
+alias chown='chown -v --preserve-root'
+alias df="df -h"
+alias du="du -h"
+alias last="last -a"
+alias psg='ps aux | grep -v grep | grep -i --color' # 查看进程信息
+
+alias ..="cd .."
+alias .2="cd ../.."
+alias .3="cd ../../.."
+alias .4="cd ../../../.."
+
+alias cds='echo "`pwd`" > ~/.cdsave'
+alias cdb='cd "`cat ~/.cdsave`"'
+
+alias dfind='find -type d -name'
+alias ffind='find -type f -name'
+
+alias hg='history|grep'
+alias netp='netstat -tulanp'  # 查看服务器端口连接信息
+
+
+
+
+# Add `~/bin` to the `$PATH`
+export PATH="$HOME/bin:$PATH";
+
+# Load the shell dotfiles, and then some:
+# * ~/.bash_inc/path can be used to extend `$PATH`.
+# * ~/.bash_inc/extra can be used for custom settings.
+for file in ~/.bash_inc/{path,bash_prompt,exports,aliases,functions,extra}; do
+    [ -r "$file" ] && [ -f "$file" ] && source "$file";
+done;
+unset file;
+
+# Case-insensitive globbing (used in pathname expansion)
+shopt -s nocaseglob;
+
+# Append to the Bash history file, rather than overwriting it
+shopt -s histappend;
+
+# Autocorrect typos in path names when using `cd`
+shopt -s cdspell;
+
+# Enable some Bash 4 features when possible:
+# * `autocd`, e.g. `**/qux` will enter `./foo/bar/baz/qux`
+# * Recursive globbing, e.g. `echo **/*.txt`
+for option in autocd globstar; do
+    shopt -s "$option" 2> /dev/null;
+done;
+
+# Add tab completion for many Bash commands
+if which brew &> /dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
+    source "$(brew --prefix)/etc/bash_completion";
+elif [ -f /etc/bash_completion ]; then
+    source /etc/bash_completion;
+fi;
+
+# Enable tab completion for `g` by marking it as an alias for `git`
+if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+    complete -o default -o nospace -F _git g;
+fi;
+
+# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
+[ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2 | tr ' ' '\n')" scp sftp ssh;
+
+# Add tab completion for `defaults read|write NSGlobalDomain`
+# You could just use `-g` instead, but I like being explicit
+complete -W "NSGlobalDomain" defaults;
+
+# Add `killall` tab completion for common apps
+complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
+
+export PATH="$(brew --prefix coreutils)/libexec/gnubin:/usr/local/bin:$PATH"
+alias ls='ls -F --show-control-chars --color=auto'
+eval `gdircolors -b $HOME/.dir_colors`
+
+export M2_HOME=/Users/robin/tools/apache-maven-3.3.9
+export PATH=$PATH:$M2_HOME/bin
+
+export SPARK_HOME=/Users/robin/spark
+export PYTHONPATH=$SPARK_HOME/python/lib/py4j-0.9-src.zip:$SPARK_HOME/python:$SPARK_HOME/python/build
+
