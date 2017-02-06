@@ -302,3 +302,10 @@ function gendot {
 function findall {
         grep -rnw '.' -e $1
 }
+
+function grefresh {
+	gco master
+	git pull
+	gco work
+	grm
+}
